@@ -1,0 +1,29 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: servicio-productos
+          uri: lb://servicio-productos
+          predicates:
+            - Path=/api/productos/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: productos
+                statusCodes: 500
+                fallbackUri: forward:/api/items/buscar/2/cantidad/1
+            - StripPrefix=2
+            - name: Ejemplo
+              args:
+                Mensaje: Hola Mensaje Personalizado
+                CookieNombre: Usuario
+                CookieValor: Rick
+        - id: servicio-item
+          uri: lb://servicio-item
+          predicates:
+            - Path=/api/items/**
+          filters:
+            - StripPrefix=2
+            - AddRequestHeader=token-request,1234567
+            - AddResponseHeader=token-response,12345678
+            - AddRequestParameter=nombre, Ricardo
